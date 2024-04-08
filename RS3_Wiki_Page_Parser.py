@@ -1,3 +1,4 @@
+import datetime
 import time
 
 import bs4
@@ -47,7 +48,22 @@ class RS3_Wiki_Page_Parser():
                 for link in links:
                     self.links_to_search.append(self.exchange_wiki_api+quote( link.get("title")))
 
-    def print_results(self):
+    def print_and_save_results(self):
         self.prices = sorted(self.prices,key=itemgetter(1))
+        text_to_save = ""
+        first_line =True
         for items in self.prices:
             print(f"{items[0][0]} is currently at {items[1]:,}gp")
+            if not first_line:
+                text_to_save += f"\n{items[0][0]} is currently at {items[1]:,}gp"
+            else:
+                text_to_save +=f"{items[0][0]} is currently at {items[1]:,}gp"
+                first_line = False
+        self.save_results(text_to_save)
+
+    def save_results(self,text):
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%d_%m_%Y_%H_%M_%S")
+        with open(f"Wiki_Parse_report_{dt_string}.txt",'w') as file:
+            file.write(text)
+
